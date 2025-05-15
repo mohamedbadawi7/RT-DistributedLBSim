@@ -72,13 +72,13 @@ public class LoadBalancerController {
     @Scheduled(fixedRate = 10000)
     private void scale() {
 
-        List<Server> notWorkingServers = this.servers.stream().filter(Server::working).collect(Collectors.toList());
+        List<Server> notWorkingServers = this.servers.stream().filter(Server::notWorking).collect(Collectors.toList());
         notWorkingServers.forEach(s -> {
                 System.out.println("Server " + s.getId() + " has no requests. Removing...");
                 servers.remove(s);
         });
 
-        List<Server> unHealthyServers = this.servers.stream().filter(Server::isHealthy).collect(Collectors.toList());
+        List<Server> unHealthyServers = this.servers.stream().filter(Server::isNotHealthy).collect(Collectors.toList());
         unHealthyServers.forEach(s -> {
             System.out.println("Server " + s.getId() + " is not healthy. Removing...");
             servers.remove(s);

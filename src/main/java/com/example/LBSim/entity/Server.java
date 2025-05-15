@@ -56,7 +56,11 @@ public class Server {
     }
 
     public boolean notWorking() {
-        return currentLoad == 0;
+        if (currentLoad == 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public boolean working() {
@@ -75,8 +79,8 @@ public class Server {
 
     }
 
-    public boolean isHealthy() {
-        return isHealthy;
+    public boolean isNotHealthy() {
+        return !isHealthy;
     }
 
     public int handleRequest() {
@@ -88,7 +92,7 @@ public class Server {
 
             CompletableFuture.runAsync(() -> {
                 try {
-                    Thread.sleep(ThreadLocalRandom.current().nextInt(500, 60000));
+                    Thread.sleep(ThreadLocalRandom.current().nextInt(500, 3600000));
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 } finally {
