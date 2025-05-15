@@ -25,6 +25,10 @@ public class Server {
         this.isHealthy = true;
     }
 
+    public int getId() {
+        return id;
+    }
+
     private int getCapacity() {
         return capacity;
     }
@@ -41,9 +45,21 @@ public class Server {
         return currentLoad >= capacity;
     }
 
+    public boolean acceptsRequest() {
+        return atCapacity() && isHealthy;
+    }
+
+    public boolean notWorking() {
+        return currentLoad == 0;
+    }
+
+    public boolean working() {
+        return currentLoad > 0;
+    }
+
     public int handleRequest() {
 
-        if (isHealthy && !atCapacity()) {
+        if (acceptsRequest()) {
             incrementLoad();
 
             CompletableFuture.runAsync(() -> {
