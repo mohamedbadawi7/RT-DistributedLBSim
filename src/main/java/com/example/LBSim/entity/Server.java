@@ -15,14 +15,16 @@ public class Server {
     private int capacity;
     private int currentLoad;
     private boolean isHealthy;
+    private int requestsHandled;
 
     public Server() {}
 
     public Server(int id) {
         this.id = id;
-        this.capacity = 100;
+        this.capacity = (int)(Math.random()*11);
         this.currentLoad = 0;
         this.isHealthy = true;
+        requestsHandled = 0;
     }
 
     public int getId() {
@@ -45,8 +47,12 @@ public class Server {
         return currentLoad >= capacity;
     }
 
+    private void incrementRequestsHandled() {
+        requestsHandled++;
+    }
+
     public boolean acceptsRequest() {
-        return atCapacity() && isHealthy;
+        return !atCapacity() && isHealthy;
     }
 
     public boolean notWorking() {
@@ -57,24 +63,40 @@ public class Server {
         return currentLoad > 0;
     }
 
+    public void setHealth() {
+
+        if (currentLoad >= 0.9 * capacity) {
+            isHealthy = false;
+        }
+
+    }
+
     public int handleRequest() {
 
         if (acceptsRequest()) {
             incrementLoad();
+            System.out.println("Server " + "#" + id + " has accepted the request");
+            System.out.println("Server " + "#" + id + " - " + currentLoad + "/" + capacity);
 
             CompletableFuture.runAsync(() -> {
                 try {
-                    Thread.sleep(ThreadLocalRandom.current().nextInt(500, 5000));
+                    Thread.sleep(ThreadLocalRandom.current().nextInt(500, 60000));
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 } finally {
                     decrementLoad();
+                    incrementRequestsHandled();
                 }
             });
             return 1;
         } else {
+            System.out.println("Server " + "#" + id + " has not accepted the request");
             return -1;
         }
+    }
+
+    public String status() {
+        return "Server " + getId() + ":                                     " + currentLoad + "/" + capacity + "                                                                        " + requestsHandled;
     }
 
 

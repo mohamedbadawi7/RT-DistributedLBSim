@@ -1,6 +1,7 @@
 package com.example.LBSim.controller;
 import com.example.LBSim.entity.Server;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,10 +47,11 @@ public class LoadBalancerController {
         this.servers.remove(s);
     }
 
-    @PostMapping("/request")
+    @GetMapping("/request")
     public void handleRequest() {
 
         incrRequests();
+        System.out.println("Request # " + numRequests + " recieved...");
 
         Optional<Server> availableServer = servers.stream()
                 .filter(Server::acceptsRequest)
@@ -70,14 +72,26 @@ public class LoadBalancerController {
     @Scheduled(fixedRate = 10000)
     private void scale() {
 
-        List<Server> workingServers = this.servers.stream().filter(Server::working).collect(Collectors.toList());
-        workingServers.stream().map(s -> {
-            if (s.notWorking()) {
+        List<Server> notWorkingServers = this.servers.stream().filter(Server::working).collect(Collectors.toList());
+        notWorkingServers.forEach(s -> {
                 System.out.println("Server " + s.getId() + " has been removed");
                 servers.remove(s);
-            }
-            return 1;
         });
+    }
+
+    @Scheduled(fixedRate = 60000)
+    private void report() {
+        System.out.println("**********************************************System Report***************************************************************");
+        System.out.println("Total Requests Received:                                                                                         " + numRequests);
+        System.out.println("Number of servers:                                                                                               " + numServers());
+        System.out.println("Server ID                      currentLoad   /   capacity                        # Requests Handled");
+        this.servers.forEach(s -> System.out.println(s.status()));
+        System.out.println("***************************************************************************************************************************");
+    }
+
+    @Scheduled(fixedRate = 10000)
+    private void healthCheck() {
+        servers.forEach(s -> {s.setHealth();});
     }
 
 }
