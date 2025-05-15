@@ -69,6 +69,14 @@ public class Server {
             isHealthy = false;
         }
 
+        if (Math.random() < 0.02) {
+            isHealthy = false;
+        }
+
+    }
+
+    public boolean isHealthy() {
+        return isHealthy;
     }
 
     public int handleRequest() {

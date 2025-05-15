@@ -59,12 +59,12 @@ public class LoadBalancerController {
 
         if (availableServer.isPresent()) {
             Server s = availableServer.get();
-            System.out.println("Server " + s.getId() + " handling request number " + numRequests());
+            System.out.println("Server " + s.getId() + " handling request number " + numRequests() + "...");
             s.handleRequest();
         } else {
             Server s = addServer();
-            System.out.println("New server with id " + s.getId() + " created");
-            System.out.println("Server " + s.getId() + " handling request number " + numRequests());
+            System.out.println("New server with id " + s.getId() + " created...");
+            System.out.println("Server " + s.getId() + " handling request number " + numRequests() + "...");
             s.handleRequest();
         }
     }
@@ -74,8 +74,14 @@ public class LoadBalancerController {
 
         List<Server> notWorkingServers = this.servers.stream().filter(Server::working).collect(Collectors.toList());
         notWorkingServers.forEach(s -> {
-                System.out.println("Server " + s.getId() + " has been removed");
+                System.out.println("Server " + s.getId() + " has no requests. Removing...");
                 servers.remove(s);
+        });
+
+        List<Server> unHealthyServers = this.servers.stream().filter(Server::isHealthy).collect(Collectors.toList());
+        unHealthyServers.forEach(s -> {
+            System.out.println("Server " + s.getId() + " is not healthy. Removing...");
+            servers.remove(s);
         });
     }
 
